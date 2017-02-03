@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Chronos
+﻿namespace CTimers
 {
 	public enum UpdateMode
 	{
@@ -8,4 +6,3 @@ namespace Chronos
 		UnscaledTime
 	}
 }
-

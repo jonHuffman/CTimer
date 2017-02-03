@@ -1,59 +1,61 @@
-﻿using System.Collections.Generic;
-
-namespace Chronos
+﻿namespace CTimers
 {
-	public delegate void TimerCallback();
-	public static class Timer
+    public class Timer
 	{
-		private const int DEFAULT_POOL_SIZE = 10;
 
-		private static bool _isInitialized = false;
-		private static List<InternalTimer> _timerPool;
+		private float _currentTime;
+		private float _endTime;
 
-		public static InternalTimer Start(float time)
+		private bool _shouldLoop;
+		private UpdateMode _updateMode;
+		private TimerCallback _onComplete;
+
+        internal bool ShouldLoop
+        {
+            get { return _shouldLoop; }
+            set { _shouldLoop = value; }
+        }
+
+        internal UpdateMode UpdateMode
+        {
+            get { return _updateMode; }
+            set { _updateMode = value; }
+        }
+
+        internal TimerCallback OnComplete
+        {
+            get { return _onComplete; }
+            set { _onComplete = value; }
+        }
+
+        internal bool IsAvailable
 		{
-			InternalTimer timer = _timerPool.Find(t => t.IsAvailable);
+			get;
+			set;
+		}
 
-			if (timer == null)
+		public Timer()
+		{
+		}
+
+		public void Start(float time)
+		{
+			_endTime = time;
+		}
+
+        /// <summary>
+        /// Increments the timer by the amount provided
+        /// </summary>
+        /// <param name="deltaTime">The delta time of this frame</param>
+		internal void Tick(float deltaTime)
+		{
+			_currentTime += deltaTime;
+
+			if (_currentTime >= _endTime)
 			{
-				timer = new InternalTimer();
-				_timerPool.Add(timer);
+                _onComplete.SafeInvoke();
 			}
-
-			timer.Start(time);
-			return timer;
-		}
-
-		public static InternalTimer SetTimescale(this InternalTimer timer, UpdateMode updateMode)
-		{
-			timer.SetUpdateMode(updateMode);
-		}
-
-		public static InternalTimer OnComplete(this InternalTimer timer, TimerCallback onComplete)
-		{
-			
-		}
-
-		public static void Initialize(int initialPoolSize)
-		{
-			_isInitialized = true;
-
-			_timerPool = new List<InternalTimer>(initialPoolSize);
-
-			for (int i = 0; i < initialPoolSize; ++i)
-			{
-				_timerPool.Add(new InternalTimer());
-			}
-		}
-
-		private static void InitCheck()
-		{
-			if (_isInitialized)
-			{
-				return;
-			}
-
-			Initialize(DEFAULT_POOL_SIZE);
 		}
 	}
 }
+
