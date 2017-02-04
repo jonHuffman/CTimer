@@ -11,7 +11,7 @@ namespace CTimers
         private static UnityTicker _ticker;
 
         /// <summary>
-        /// Starts a Timer counting to the set time value.
+        /// Starts a Timer counting to the set time value and returns it for access and modification.
         /// </summary>
         /// <param name="time">The duration of the Timer</param>
         /// <returns>The Timer</returns>
@@ -58,8 +58,19 @@ namespace CTimers
             _ticker.SetTickCallback(Tick);
         }
 
+        /// <summary>
+        /// Updates all active timers with the provided delat time values
+        /// </summary>
+        /// <param name="deltaTime">The delta time of the frame</param>
+        /// <param name="unscaledDeltaTime">The unscaled delta time of the frame</param>
         private static void Tick(float deltaTime, float unscaledDeltaTime)
         {
+            // We do not auto-initialize here so that the user has the option to initialize as they see fit, should they desire
+            if(_timerPool == null)
+            {
+                return;
+            }
+
             Timer t;
             for(int i = 0, count = _timerPool.Count; i < count; ++i)
             {
@@ -72,6 +83,9 @@ namespace CTimers
             }
         }
 
+        /// <summary>
+        /// Confirms initialization and if uninitialized, performs initialization... initialize the initialization sequence and get this thing initialized!
+        /// </summary>
         private static void InitCheck()
         {
             if (_isInitialized)

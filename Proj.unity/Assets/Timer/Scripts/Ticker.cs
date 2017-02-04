@@ -2,6 +2,12 @@
 
 namespace CTimers
 {
+    /// <summary>
+    /// Performs the update loop that ticks all timers. Auto-initializes and links to Chronos.
+    /// </summary>
+    /// <remarks>
+    /// Explicitly named different than file in order to prevent Unity from detecting and displaying as a component option within the inspector.
+    /// </remarks>
     public class UnityTicker : MonoBehaviour
     {
         /// <summary>
@@ -22,6 +28,8 @@ namespace CTimers
             Chronos.SetTicker(ticker);
         }
 
+        #region Unity
+
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
@@ -32,6 +40,7 @@ namespace CTimers
             if (_tickCallback != null)
                 _tickCallback(Time.deltaTime, Time.unscaledDeltaTime);
         }
+        #endregion
 
         /// <summary>
         /// Sets the TickCallback method to be invoked each update

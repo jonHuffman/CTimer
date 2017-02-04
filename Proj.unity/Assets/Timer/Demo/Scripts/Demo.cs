@@ -9,7 +9,8 @@ public class Demo : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        Chronos.Start(2f).SetOnComplete(ChangeColor);
+        Time.timeScale = 0;
+        Chronos.Start(2f).SetOnComplete(ChangeColor).SetUpdateMode(UpdateMode.Normal);
     }
 
     private void ChangeColor()
