@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CTimers
 {
@@ -7,8 +8,16 @@ namespace CTimers
         private const int DEFAULT_POOL_SIZE = 10;
 
         private static bool _isInitialized = false;
-        private static List<Timer> _timerPool;
         private static UnityTicker _ticker;
+
+        private static bool _recycleTimers;
+        private static List<Timer> _timerPool;
+        private static List<WeakReference> _unpooledTimers;
+
+        internal static bool RecycleTimers
+        {
+            get { return _recycleTimers; }
+        }
 
         /// <summary>
         /// Starts a Timer counting to the set time value and returns it for access and modification.
@@ -19,32 +28,51 @@ namespace CTimers
         {
             InitCheck();
 
-            Timer timer = _timerPool.Find(t => t.IsAvailable);
+            Timer timer;
 
-            if (timer == null)
+            if (_recycleTimers)
+            {
+                timer = _timerPool.Find(t => t.IsAvailable);
+
+                if (timer == null)
+                {
+                    timer = new Timer();
+                    _timerPool.Add(timer);
+                }
+            }
+            else
             {
                 timer = new Timer();
-                _timerPool.Add(timer);
+                _unpooledTimers.Add(new WeakReference(timer));
             }
 
             timer.Start(time);
             timer.IsAvailable = false;
             return timer;
-        }		
+        }
 
         /// <summary>
         /// Initializes Chronos. Only needs to be called once in the lifecycle of hte application.
         /// </summary>
         /// <param name="initialPoolSize">The initial number of Timers to create in the Pool</param>
-        public static void Init(int initialPoolSize)
+        /// <param name="recycleTimers">If true, Timers will automatically return to a bool upon completion. Stopped Timers are not considered completed.</param>
+        public static void Init(int initialPoolSize, bool recycleTimers = false)
         {
             _isInitialized = true;
+            _recycleTimers = recycleTimers;
 
-            _timerPool = new List<Timer>(initialPoolSize);
-
-            for (int i = 0; i < initialPoolSize; ++i)
+            if (_recycleTimers)
             {
-                _timerPool.Add(new Timer());
+                _timerPool = new List<Timer>(initialPoolSize);
+
+                for (int i = 0; i < initialPoolSize; ++i)
+                {
+                    _timerPool.Add(new Timer());
+                }
+            }
+            else
+            {
+                _unpooledTimers = new List<WeakReference>();
             }
         }
 
@@ -65,20 +93,37 @@ namespace CTimers
         /// <param name="unscaledDeltaTime">The unscaled delta time of the frame</param>
         private static void Tick(float deltaTime, float unscaledDeltaTime)
         {
-            // We do not auto-initialize here so that the user has the option to initialize as they see fit, should they desire
-            if(_timerPool == null)
+            Timer t;
+
+            if (_timerPool != null)
             {
-                return;
+                for (int i = 0, count = _timerPool.Count; i < count; ++i)
+                {
+                    t = _timerPool[i];
+
+                    if (t.IsActive)
+                    {
+                        t.Tick(t.UpdateMode == UpdateMode.Normal ? deltaTime : unscaledDeltaTime);
+                    }
+                }
             }
 
-            Timer t;
-            for(int i = 0, count = _timerPool.Count; i < count; ++i)
+            if (_unpooledTimers != null)
             {
-                t = _timerPool[i];
-
-                if(t.IsAvailable == false)
+                for (int i = _unpooledTimers.Count - 1, final = 0; i >= final; i--)
                 {
-                    t.Tick(t.UpdateMode == UpdateMode.Normal ? deltaTime : unscaledDeltaTime);
+                    if (_unpooledTimers[i].IsAlive == false)
+                    {
+                        _unpooledTimers.RemoveAt(i);
+                        continue;
+                    }
+
+                    t = (Timer)_unpooledTimers[i].Target;
+
+                    if (t.IsActive)
+                    {
+                        t.Tick(t.UpdateMode == UpdateMode.Normal ? deltaTime : unscaledDeltaTime);
+                    }
                 }
             }
         }
