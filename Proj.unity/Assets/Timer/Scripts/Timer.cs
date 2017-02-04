@@ -1,4 +1,6 @@
-﻿namespace CTimers
+﻿using UnityEngine;
+
+namespace CTimers
 {
 	public class Timer
 	{
@@ -52,8 +54,9 @@
 		internal void Start(float time)
 		{
 			_endTime = time;
-			_isActive = true;
 			_isComplete = false;
+			IsAvailable = false;
+			ActivateTimer();
 		}
 
 		/// <summary>
@@ -66,12 +69,11 @@
 
 			if (_isComplete == false && _currentTime >= _endTime)
 			{
-				_isComplete = true;
-				_onComplete.SafeInvoke();
+				Complete();
 			}
 		}
 		#endregion
-		
+
 		/// <summary>
 		/// Is this Timer ticking down
 		/// </summary>
@@ -95,8 +97,8 @@
 		public void Stop()
 		{
 			_currentTime = 0f;
-			_isActive = false;
 			_isComplete = false;
+			DeactivateTimer();
 		}
 
 		/// <summary>
@@ -105,7 +107,7 @@
 		/// </summary>
 		public void Pause()
 		{
-			_isActive = false;
+			DeactivateTimer();
 		}
 
 		/// <summary>
@@ -113,7 +115,7 @@
 		/// </summary>
 		public void Resume()
 		{
-			_isActive = true;
+			ActivateTimer();
 		}
 
 		/// <summary>
@@ -122,8 +124,27 @@
 		public void Restart()
 		{
 			_currentTime = 0f;
-			_isActive = true;
 			_isComplete = false;
+			ActivateTimer();
+		}
+
+		/// <summary>
+		/// Activates the timer. Registers it so that it recieves update ticks
+		/// </summary>
+		private void ActivateTimer()
+		{
+			_isActive = true;
+			Chronos.RegisterForTicks(this);
+		}
+
+
+		/// <summary>
+		/// Deactivates the timer. Unregister it so that it does not recieve update ticks
+		/// </summary>
+		private void DeactivateTimer()
+		{
+			_isActive = false;
+			Chronos.UnregisterForTicks(this);
 		}
 
 		/// <summary>
@@ -134,8 +155,10 @@
 		private void Complete()
 		{
 			_isComplete = true;
+			_onComplete.SafeInvoke();
+			DeactivateTimer();
 
-			if(Chronos.RecycleTimers)
+			if (Chronos.RecycleTimers)
 			{
 				IsAvailable = true;
 			}

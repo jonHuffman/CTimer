@@ -8,11 +8,19 @@ using UnityEngine.Assertions;
 /// </summary>
 public class TimescaleTest : MonoBehaviour
 {
+    [SerializeField]
+    private bool _recycle = false;
+
     private bool _normalCalled;
 
     // Use this for initialization
     void Start()
     {
+        if (_recycle)
+        {
+            Chronos.Init(10, true);
+        }
+
         Time.timeScale = 0f;
 
         _normalCalled = false;
