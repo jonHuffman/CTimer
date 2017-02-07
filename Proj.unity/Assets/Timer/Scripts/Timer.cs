@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace CTimers
+﻿namespace CTimers
 {
 	public class Timer
 	{
@@ -14,12 +12,6 @@ namespace CTimers
 		private TimerCallback _onComplete;
 
 		#region Internal
-
-		internal bool IsAvailable
-		{
-			get;
-			set;
-		}
 
 		internal bool ShouldLoop
 		{
@@ -54,8 +46,8 @@ namespace CTimers
 		internal void Start(float time)
 		{
 			_endTime = time;
+			_currentTime = 0f;
 			_isComplete = false;
-			IsAvailable = false;
 			ActivateTimer();
 		}
 
@@ -154,13 +146,13 @@ namespace CTimers
 		/// </summary>
 		private void Complete()
 		{
+			DeactivateTimer();
 			_isComplete = true;
 			_onComplete.SafeInvoke();
-			DeactivateTimer();
 
-			if (CTimer.RecycleTimers)
+			if(CTimer.RecycleTimers)
 			{
-				IsAvailable = true;
+				CTimer.Recycle(this);
 			}
 		}
 	}
