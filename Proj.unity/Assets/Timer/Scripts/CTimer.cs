@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CTimers
 {
-    public class Chronos
+    public class CTimer
     {
         private const int DEFAULT_POOL_SIZE = 10;
 

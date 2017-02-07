@@ -4,25 +4,17 @@ using UnityEngine.Assertions;
 
 public class ManipulationTests : MonoBehaviour
 {
-    [SerializeField]
-    private bool _recycle = false;
-
     private Timer _timer;
     
     void Start()
     {
-        if(_recycle)
-        {
-            Chronos.Init(10, true);
-        }
-
-        _timer = Chronos.Start(4f).SetOnComplete(MainTimerComplete);
+        _timer = CTimer.Start(4f).SetOnComplete(MainTimerComplete);
         _timer.Pause();
 
         Assert.IsFalse(_timer.IsActive, "Timer should not be active");
 
         _timer.Resume();
-        Chronos.Start(1f).SetOnComplete(FirstStep);
+        CTimer.Start(1f).SetOnComplete(FirstStep);
     }
 
     private void FirstStep()
@@ -31,7 +23,7 @@ public class ManipulationTests : MonoBehaviour
         
         Assert.IsTrue(_timer.CurrentTime >= 1f, "Step 1: Timer has not progressed as expected.");
 
-        Chronos.Start(1.1f).SetOnComplete(SecondStep);
+        CTimer.Start(1.1f).SetOnComplete(SecondStep);
     }
 
     private void SecondStep()
@@ -40,7 +32,7 @@ public class ManipulationTests : MonoBehaviour
 
         _timer.Restart();
 
-        Chronos.Start(2.5f).SetOnComplete(ThirdStep);
+        CTimer.Start(2.5f).SetOnComplete(ThirdStep);
     }
 
     private void ThirdStep()
@@ -55,7 +47,7 @@ public class ManipulationTests : MonoBehaviour
 
         _timer.Resume();
 
-        Chronos.Start(2.5f).SetOnComplete(FourthStep);
+        CTimer.Start(2.5f).SetOnComplete(FourthStep);
     }
 
     private void FourthStep()

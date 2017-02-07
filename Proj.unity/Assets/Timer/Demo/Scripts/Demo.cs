@@ -10,7 +10,7 @@ public class Demo : MonoBehaviour
     void Start()
     {
         Time.timeScale = 0;
-        Chronos.Start(2f).SetOnComplete(ChangeColor).SetUpdateMode(UpdateMode.Normal);
+        CTimer.Start(2f).SetOnComplete(ChangeColor).SetUpdateMode(UpdateMode.Normal);
     }
 
     private void ChangeColor()

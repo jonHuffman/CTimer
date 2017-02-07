@@ -134,7 +134,7 @@ namespace CTimers
 		private void ActivateTimer()
 		{
 			_isActive = true;
-			Chronos.RegisterForTicks(this);
+			CTimer.RegisterForTicks(this);
 		}
 
 
@@ -144,7 +144,7 @@ namespace CTimers
 		private void DeactivateTimer()
 		{
 			_isActive = false;
-			Chronos.UnregisterForTicks(this);
+			CTimer.UnregisterForTicks(this);
 		}
 
 		/// <summary>
@@ -158,7 +158,7 @@ namespace CTimers
 			_onComplete.SafeInvoke();
 			DeactivateTimer();
 
-			if (Chronos.RecycleTimers)
+			if (CTimer.RecycleTimers)
 			{
 				IsAvailable = true;
 			}

@@ -25,7 +25,7 @@ namespace CTimers
         private static void Initialize()
         {
             UnityTicker ticker = new GameObject("UnityTicker").AddComponent<UnityTicker>();
-            Chronos.SetTicker(ticker);
+            CTimer.SetTicker(ticker);
         }
 
         #region Unity
