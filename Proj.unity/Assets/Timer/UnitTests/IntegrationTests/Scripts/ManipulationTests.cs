@@ -1,4 +1,5 @@
 ﻿using CTimers;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -38,7 +39,7 @@ public class ManipulationTests : MonoBehaviour
     private void ThirdStep()
     {
         Assert.IsTrue(_timer.IsActive, "Step 3: Timer should be active");
-        Assert.IsFalse(_timer.IsComplete, "Step 3: Timer should not hace completed yet");
+        Assert.IsFalse(_timer.IsComplete, "Step 3: Timer should not have completed yet");
 
         _timer.Stop();
 
@@ -53,11 +54,20 @@ public class ManipulationTests : MonoBehaviour
     private void FourthStep()
     {
         Assert.IsTrue(_timer.IsActive, "Step 4: Timer should be active");
-        Assert.IsFalse(_timer.IsComplete, "Step 4: Timer should not hace completed yet");
+        Assert.IsFalse(_timer.IsComplete, "Step 4: Timer should not have completed yet");
     }
 
     private void MainTimerComplete()
     {
+        Assert.IsFalse(_timer.IsComplete, "Main Timer Complete: Timer should not have completed yet. Timer is not considered complete until after the OnComplete callback has been completed as well.");
+        
+        StartCoroutine(FrameDelay());
+    }
+
+    private IEnumerator FrameDelay()
+    {
+        yield return new WaitForEndOfFrame();
+
         Assert.IsTrue(_timer.IsComplete, "Timer should be complete now");
 
         IntegrationTest.Pass();

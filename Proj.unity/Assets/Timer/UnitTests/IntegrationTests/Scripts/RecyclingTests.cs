@@ -28,7 +28,7 @@ public class RecyclingTests : MonoBehaviour
 		_timerB = CTimer.Start(1f);
 
 		Assert.AreEqual(0, CTimer.AvailableTimers, "Available Timers should be 0");
-		Assert.AreEqual(2, CTimer.ActiveTimers, string.Format("There should be 2 active timers at this point, there are {0}", CTimer.ActiveTimers));
+		Assert.AreEqual(3, CTimer.ActiveTimers, string.Format("There should be 3 active timers at this point, there are {0}. Timers become complete and inactive after the callback.", CTimer.ActiveTimers));
 
 		// Should create a new Timer in the pool, will verify in TimerA_Complete
 		CTimer.Start(2f);
