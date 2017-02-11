@@ -10,7 +10,6 @@
         private TimerCallback _onLoopComplete;
         private TimerCallback _onComplete;
         private UpdateMode _updateMode;
-        private bool _shouldLoop;
         private int _totalLoops;
         private int _loopCount;
 

@@ -9,7 +9,6 @@ public class Demo : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        Time.timeScale = 0;
         CTimer.Start(2f).SetOnComplete(ChangeColor).SetUpdateMode(UpdateMode.Normal);
     }
 
