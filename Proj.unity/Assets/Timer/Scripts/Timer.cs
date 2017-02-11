@@ -177,11 +177,6 @@
             _onComplete.SafeInvoke();
             DeactivateTimer();
             _isComplete = true;
-
-            if (CTimer.RecycleTimers)
-            {
-                CTimer.Recycle(this);
-            }
         }
     }
 }

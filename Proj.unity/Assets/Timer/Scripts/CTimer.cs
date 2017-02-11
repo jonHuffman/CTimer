@@ -14,23 +14,10 @@ namespace CTimers
 
         private static HashSet<Timer> _activeTimers;
         private static HashSet<Timer> _processingTimers;
-
-        private static bool _recycleTimers;
-        private static Queue<Timer> _timerPool;
-
-        internal static bool RecycleTimers
-        {
-            get { return _recycleTimers; }
-        }
-
+        
         internal static int ActiveTimers
         {
             get { return _activeTimers.Count; }
-        }
-
-        internal static int AvailableTimers
-        {
-            get { return _recycleTimers ? _timerPool.Count : 0; }
         }
 
         /// <summary>
@@ -42,24 +29,7 @@ namespace CTimers
         {
             InitCheck();
 
-            Timer timer;
-
-            if (_recycleTimers)
-            {
-                if(_timerPool.Count == 0)
-                {
-                    timer = new Timer();
-                }
-                else
-                {
-                    timer = _timerPool.Dequeue();
-                }
-            }
-            else
-            {
-                timer = new Timer();
-            }
-
+            Timer timer = new Timer();
             timer.Start(time);
             return timer;
         }
@@ -78,17 +48,6 @@ namespace CTimers
             }
 
             _isInitialized = true;
-            _recycleTimers = recycleTimers;
-
-            if (_recycleTimers)
-            {
-                _timerPool = new Queue<Timer>(initialPoolSize);
-
-                for (int i = 0; i < initialPoolSize; ++i)
-                {
-                    _timerPool.Enqueue(new Timer());
-                }
-            }
 
             _activeTimers = new HashSet<Timer>();
             _processingTimers = new HashSet<Timer>();
@@ -115,16 +74,6 @@ namespace CTimers
             _activeTimers.Add(timer);
         }
 
-
-        /// <summary>
-        /// Returns the Timer to the Pool, making it available for re-use. Only called when recyling has been enabled.
-        /// </summary>
-        /// <param name="timer">Timer to recycle</param>
-        internal static void Recycle(Timer timer)
-        {
-            _timerPool.Enqueue(timer);
-        }
-
         /// <summary>
         /// Unregisters the provided Timer so it will not longer receive update ticks
         /// </summary>
@@ -146,6 +95,7 @@ namespace CTimers
             // We don't perform a full initialization check here in order to prevent the ticker from initializing Chronos before we are ready
             if (_isInitialized && _activeTimers.Count > 0)
             {
+                // Copy the active timer list and process based on the copy in the event the act of processing the timers causes some to be started or completed
                 _processingTimers.Clear();
                 _processingTimers.UnionWith(_activeTimers);
 
